@@ -4,11 +4,11 @@ const app = express();
 
 /* Request Logging Middleware */
 app.use((req, res, next) => {
-  const start = Date.now();
-
+  const start = new Date();
+  
   res.on('finish', () => {
-    const duration = Date.now() - start;
-    console.log(`${new Date(start).toISOString()}: ${req.method} ${req.url} S=${res.statusCode} D=${duration}ms`);
+    const duration = new Date() - start;
+    console.log(`${start.toISOString()} ${req.method} ${req.url} => ${res.statusCode} ${duration}ms`);
   });
 
   next();
