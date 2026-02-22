@@ -1,78 +1,6 @@
-import { useState } from 'react';
+import Link from 'next/link';
 
 export default function Home() {
-  const [showSignupModal, setShowSignupModal] = useState(false);
-  const [formData, setFormData] = useState({
-    fullName: '',
-    companyEmail: '',
-    companyName: '',
-    password: '',
-    confirmPassword: '',
-  });
-  const [errors, setErrors] = useState({});
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Full name is required';
-    }
-    
-    if (!formData.companyEmail.trim()) {
-      newErrors.companyEmail = 'Company email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.companyEmail)) {
-      newErrors.companyEmail = 'Please enter a valid email';
-    }
-    
-    if (!formData.companyName.trim()) {
-      newErrors.companyName = 'Company name is required';
-    }
-    
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
-    }
-    
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-    
-    return newErrors;
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const newErrors = validateForm();
-    
-    if (Object.keys(newErrors).length === 0) {
-      console.log('Form submitted:', formData);
-      setShowSignupModal(false);
-      setFormData({
-        fullName: '',
-        companyEmail: '',
-        companyName: '',
-        password: '',
-        confirmPassword: '',
-      });
-    } else {
-      setErrors(newErrors);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-white overflow-hidden">
@@ -81,12 +9,12 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="text-lg font-bold tracking-wider bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">KnowBaseAI</div>
           <div className="flex gap-3">
-            <button className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-blue-400 transition-colors duration-200">
+            <Link href="/login" className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-blue-400 transition-colors duration-200">
               Log In
-            </button>
-            <button className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-all duration-200 shadow-lg hover:shadow-blue-500/30">
+            </Link>
+            <Link href="/signup" className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-all duration-200 shadow-lg hover:shadow-blue-500/30 inline-block">
               Sign Up
-            </button>
+            </Link>
           </div>
         </div>
       </nav>
@@ -128,138 +56,15 @@ export default function Home() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button onClick={() => setShowSignupModal(true)} className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-lg hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 active:scale-95">
+            <Link href="/signup" className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-lg hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300 hover:scale-105 active:scale-95 inline-block text-center">
               Sign Up
-            </button>
-            <button className="px-8 py-4 border-2 border-slate-600 text-white font-semibold rounded-lg hover:border-slate-400 hover:bg-slate-900/50 transition-all duration-300 active:scale-95">
+            </Link>
+            <Link href="/login" className="px-8 py-4 border-2 border-slate-600 text-white font-semibold rounded-lg hover:border-slate-400 hover:bg-slate-900/50 transition-all duration-300 active:scale-95 inline-block text-center">
               Log In
-            </button>
+            </Link>
           </div>
         </div>
       </main>
-
-      {/* Signup Modal */}
-      {showSignupModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full border border-slate-800">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-slate-800">
-              <h2 className="text-2xl font-bold">Create Account</h2>
-              <button onClick={() => setShowSignupModal(false)} className="text-slate-400 hover:text-white transition-colors">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {/* Full Name */}
-              <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-slate-300 mb-2">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  id="fullName"
-                  name="fullName"
-                  value={formData.fullName}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-2 rounded-lg bg-slate-800 border transition-colors ${
-                    errors.fullName ? 'border-red-500' : 'border-slate-700 focus:border-blue-500'
-                  } text-white placeholder-slate-500 focus:outline-none`}
-                  placeholder="John Doe"
-                />
-                {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
-              </div>
-
-              {/* Company Name */}
-              <div>
-                <label htmlFor="companyName" className="block text-sm font-medium text-slate-300 mb-2">
-                  Company Name
-                </label>
-                <input
-                  type="text"
-                  id="companyName"
-                  name="companyName"
-                  value={formData.companyName}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-2 rounded-lg bg-slate-800 border transition-colors ${
-                    errors.companyName ? 'border-red-500' : 'border-slate-700 focus:border-blue-500'
-                  } text-white placeholder-slate-500 focus:outline-none`}
-                  placeholder="Acme Inc"
-                />
-                {errors.companyName && <p className="text-red-500 text-sm mt-1">{errors.companyName}</p>}
-              </div>
-
-              {/* Company Email */}
-              <div>
-                <label htmlFor="companyEmail" className="block text-sm font-medium text-slate-300 mb-2">
-                  Company Email
-                </label>
-                <input
-                  type="email"
-                  id="companyEmail"
-                  name="companyEmail"
-                  value={formData.companyEmail}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-2 rounded-lg bg-slate-800 border transition-colors ${
-                    errors.companyEmail ? 'border-red-500' : 'border-slate-700 focus:border-blue-500'
-                  } text-white placeholder-slate-500 focus:outline-none`}
-                  placeholder="john@acme.com"
-                />
-                {errors.companyEmail && <p className="text-red-500 text-sm mt-1">{errors.companyEmail}</p>}
-              </div>
-
-              {/* Password */}
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-2 rounded-lg bg-slate-800 border transition-colors ${
-                    errors.password ? 'border-red-500' : 'border-slate-700 focus:border-blue-500'
-                  } text-white placeholder-slate-500 focus:outline-none`}
-                  placeholder="At least 8 characters"
-                />
-                {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
-              </div>
-
-              {/* Confirm Password */}
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-300 mb-2">
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-2 rounded-lg bg-slate-800 border transition-colors ${
-                    errors.confirmPassword ? 'border-red-500' : 'border-slate-700 focus:border-blue-500'
-                  } text-white placeholder-slate-500 focus:outline-none`}
-                  placeholder="Confirm your password"
-                />
-                {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                className="w-full px-4 py-3 mt-6 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-500/40 transition-all duration-300 active:scale-95"
-              >
-                Create Account
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
