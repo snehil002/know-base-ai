@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { BACKEND_URL as backend_url } from '@/config/env.js';
+import { useRouter } from 'next/navigation';
 
 export default function Login() {
+  const router = useRouter();
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState({
@@ -61,6 +63,7 @@ export default function Login() {
             email: '',
             password: '',
           });
+          router.push('/dashboard');
         }
       })
       .catch(err => {
