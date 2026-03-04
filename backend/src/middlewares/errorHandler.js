@@ -1,6 +1,8 @@
 const { sendErrorResponse } = require("../utils/response");
 const { logError } = require("../utils/logger");
 
+// Centralized error handling middleware
+// Should definitely send an error response
 module.exports = (err, req, res, next) => {
   const errMsg = err.message || "Internal Server Error";
   const errDetails = err.details || {};
@@ -9,7 +11,12 @@ module.exports = (err, req, res, next) => {
   logError(errMsg, {
     stack: err.stack,
     path: req.originalUrl,
+    details: errDetails,
   });
 
-  return sendErrorResponse(res, errMsg, errDetails, statusCode);
+  if (err.forFrontend) {
+    return sendErrorResponse(res, errMsg, errDetails, statusCode);
+  } else {
+    return sendErrorResponse(res, "An unexpected error occurred", {}, 500);
+  }
 };

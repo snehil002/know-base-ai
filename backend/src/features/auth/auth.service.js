@@ -4,18 +4,19 @@ const jwt = require("jsonwebtoken");
 const User = require("./auth.model");
 const { JWT_SECRET } = require("../../config/env");
 
-const generateToken = (email) => {
-  return jwt.sign({ email }, JWT_SECRET, {
+const generateToken = (companyEmail) => {
+  return jwt.sign({ companyEmail }, JWT_SECRET, {
     expiresIn: "7d",
   });
 };
 
-exports.registerUserService = async ({ fullName, companyName, email, password }) => {
+exports.registerUserService = async ({ fullName, companyName, companyEmail, password }) => {
   // DB Read query
-  // returns the user document (without password) if found, otherwise null
-  const existing = await User.findOne({ email });
+  // returns the user document (without password: see model file) if found, otherwise null
+  const existing = await User.findOne({ companyEmail });
   if (existing) {
     const err = new Error("User already exists");
+    err.forFrontend = true;
     err.statusCode = 400;
     throw err;
   }
@@ -27,30 +28,31 @@ exports.registerUserService = async ({ fullName, companyName, email, password })
   const user = await User.create({
     fullName,
     companyName,
-    email,
+    companyEmail,
     password: hashedPassword,
   });
 
-  const token = generateToken(user.email);
+  const token = generateToken(user.companyEmail); // JWT token string
 
   return { 
     user: {
       fullName: user.fullName,
       companyName: user.companyName,
-      email: user.email,
+      companyEmail: user.companyEmail,
       role: user.role
     }, 
     token
   };
 };
 
-exports.loginUserService = async ({ email, password }) => {
+exports.loginUserService = async ({ companyEmail, password }) => {
   // DB Read query
   // returns the user document (with password) if found, otherwise null
-  const user = await User.findOne({ email }).select("+password");
+  const user = await User.findOne({ companyEmail }).select("+password");
 
   if (!user) {
     const err = new Error("Invalid credentials");
+    err.forFrontend = true;
     err.statusCode = 401;
     throw err;
   }
@@ -59,17 +61,18 @@ exports.loginUserService = async ({ email, password }) => {
 
   if (!isMatch) {
     const err = new Error("Invalid credentials");
+    err.forFrontend = true;
     err.statusCode = 401;
     throw err;
   }
 
-  const token = generateToken(user.email);
+  const token = generateToken(user.companyEmail); // JWT token string
 
   return { 
     user: {
       fullName: user.fullName,
       companyName: user.companyName,
-      email: user.email,
+      companyEmail: user.companyEmail,
       role: user.role
     }, 
     token

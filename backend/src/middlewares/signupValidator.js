@@ -9,10 +9,10 @@ const validateFormData = (formData) => {
     newErrors.companyName = 'Company name is required';
   }
   
-  if (!formData.email.trim()) {
-    newErrors.email = 'Company email is required';
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-    newErrors.email = 'Please enter a valid email';
+  if (!formData.companyEmail.trim()) {
+    newErrors.companyEmail = 'Company email is required';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.companyEmail)) {
+    newErrors.companyEmail = 'Please enter a valid company email';
   }
   
   if (!formData.password.trim()) {
@@ -27,7 +27,9 @@ const validateFormData = (formData) => {
   
   if (Object.keys(newErrors).length > 0) {
     const err = new Error("Form validation failed");
-    err.details = newErrors;
+    err.forFrontend = true;
+    err.details = {formErrors: newErrors};
+    err.statusCode = 400;
     throw err;
   }
 };

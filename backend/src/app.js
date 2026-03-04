@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
+const { FRONTEND_URL } = require("./config/env");
 const errorHandler = require("./middlewares/errorHandler");
 const authRouter = require("./features/auth/auth.routes");
 
@@ -9,7 +10,11 @@ const app = express();
 
 // app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cors());
+
+app.use(cors({
+  origin: FRONTEND_URL,
+  credentials: true, // allow cookies to be sent
+}));
 
 /* Request Logging Middleware */
 app.use((req, res, next) => {

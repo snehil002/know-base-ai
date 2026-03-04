@@ -8,7 +8,7 @@ export default function Login() {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState({
-    email: '',
+    companyEmail: '',
     password: '',
   });
   const [errors, setErrors] = useState({});
@@ -24,10 +24,10 @@ export default function Login() {
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
+    if (!formData.companyEmail.trim()) {
+      newErrors.companyEmail = 'Company email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.companyEmail)) {
+      newErrors.companyEmail = 'Please enter a valid company email';
     }
     
     if (!formData.password.trim()) {
@@ -49,21 +49,22 @@ export default function Login() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // include cookies in the request
       })
       .then(res => res.json()) // parse JSON
       .then(data => {
-        if (!data.success) {
-          setSuccessMessage('');
-          setErrorMessage(data.message);
-          setErrors(JSON.parse(data.details));
-        } else {
+        if (data.success) {
           setSuccessMessage(data.message);
           setErrorMessage('');
           setFormData({
-            email: '',
+            companyEmail: '',
             password: '',
           });
           router.push('/dashboard');
+        } else {
+          setSuccessMessage('');
+          setErrorMessage(data.message);
+          setErrors(JSON.parse(data.details).formErrors || {});
         }
       })
       .catch(err => {
@@ -125,23 +126,23 @@ export default function Login() {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Email */}
+              {/* Company email */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
-                  Email Address
+                <label htmlFor="companyEmail" className="block text-sm font-medium text-slate-300 mb-2">
+                  Company email
                 </label>
                 <input
                   type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
+                  id="companyEmail"
+                  name="companyEmail"
+                  value={formData.companyEmail}
                   onChange={handleInputChange}
                   className={`w-full px-4 py-2 rounded-lg bg-slate-800 border transition-colors ${
-                    errors.email ? 'border-red-500' : 'border-slate-700 focus:border-blue-500'
+                    errors.companyEmail ? 'border-red-500' : 'border-slate-700 focus:border-blue-500'
                   } text-white placeholder-slate-500 focus:outline-none`}
                   placeholder="john@acme.com"
                 />
-                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                {errors.companyEmail && <p className="text-red-500 text-sm mt-1">{errors.companyEmail}</p>}
               </div>
 
               {/* Password */}

@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    email: {
+    companyEmail: {
       type: String,
       required: true,
       trim: true,
