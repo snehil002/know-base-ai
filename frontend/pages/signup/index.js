@@ -64,6 +64,7 @@ export default function Signup() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // include cookies in the request
       })
       .then(res => res.json()) // parse JSON
       .then(data => {
