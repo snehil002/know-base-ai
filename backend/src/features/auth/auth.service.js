@@ -16,7 +16,6 @@ exports.registerUserService = async ({ fullName, companyName, companyEmail, pass
   const existing = await User.findOne({ companyEmail });
   if (existing) {
     const err = new Error("User already exists");
-    err.forFrontend = true;
     err.statusCode = 400;
     throw err;
   }
@@ -52,7 +51,6 @@ exports.loginUserService = async ({ companyEmail, password }) => {
 
   if (!user) {
     const err = new Error("Invalid credentials");
-    err.forFrontend = true;
     err.statusCode = 401;
     throw err;
   }
@@ -61,7 +59,6 @@ exports.loginUserService = async ({ companyEmail, password }) => {
 
   if (!isMatch) {
     const err = new Error("Invalid credentials");
-    err.forFrontend = true;
     err.statusCode = 401;
     throw err;
   }

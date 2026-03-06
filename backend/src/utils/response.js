@@ -18,9 +18,9 @@ exports.sendErrorResponse = (res, message = "Error", details = {}, statusCode = 
 
 exports.setAuthCookieResponseHeader = (res, key, value) => {
   return res.cookie(key, value, {
-    httpOnly: true,
-    secure: NODE_ENV === "production",
+    httpOnly: true, // prevent client-side JavaScript from accessing the cookie
+    secure: NODE_ENV === "production", // only send cookie over HTTPS in production
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-    sameSite: "Strict",
+    sameSite: "None", // allow cross-site cookies
   });
 };

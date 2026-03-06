@@ -15,9 +15,8 @@ const validateFormData = (formData) => {
   
   if (Object.keys(newErrors).length > 0) {
     const err = new Error("Form validation failed");
-    err.forFrontend = true;
-    err.details = {formErrors: newErrors};
     err.statusCode = 400;
+    err.details = {formErrors: newErrors};
     throw err;
   }
 };
