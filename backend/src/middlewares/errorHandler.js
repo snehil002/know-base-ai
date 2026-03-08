@@ -14,6 +14,6 @@ module.exports = (err, req, res, next) => {
   if (typeof err.statusCode === "number") { // for frontend
     return sendErrorResponse(res, err.message, err.details, err.statusCode);
   } else {
-    return sendErrorResponse(res, "An unexpected error occurred", {}, 500);
+    return sendErrorResponse(res, "An unexpected error occurred.", {}, 500);
   }
 };

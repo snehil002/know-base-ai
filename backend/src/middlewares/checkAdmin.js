@@ -1,7 +1,7 @@
 const checkAdmin = async (req, res, next) => {
   try {
     if (req.user.role !== "admin") {
-      const err = new Error("You are not authorized to perform this action");
+      const err = new Error("You are not authorized to perform this action.");
       err.statusCode = 401;
       throw err;
     }

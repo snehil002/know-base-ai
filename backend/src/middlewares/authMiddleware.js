@@ -5,7 +5,7 @@ const User = require("../features/auth/auth.model");
 const isUserAuthenticated = async (req, res, next) => {
   try {
     if (!req.cookies || !req.cookies["auth-token"]) {
-      const err = new Error("You are not authorized. Please login.");
+      const err = new Error("You are not authenticated. Please login.");
       err.statusCode = 401;
       throw err;
     }

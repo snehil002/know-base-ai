@@ -8,6 +8,7 @@ const errorHandler = require("./middlewares/errorHandler");
 const authRouter = require("./features/auth/auth.routes");
 const userRouter = require("./features/user/user.routes");
 const authMiddleware = require("./middlewares/authMiddleware");
+const checkAdmin = require('./middlewares/checkAdmin');
 
 const app = express();
 
@@ -42,15 +43,17 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK' });
 });
 
-app.get('/test', authMiddleware, (req, res) => {
-  console.log('req.cookies', req.cookies);
-  console.log('req.user', req.user);
-  res.json({ message: 'This is a test route', cookies: req.cookies||'', user: req.user||'' });
-});
+// app.get('/test', authMiddleware, (req, res) => {
+//   console.log('req.cookies', req.cookies);
+//   console.log('req.user', req.user);
+//   res.json({ message: 'This is a test route', cookies: req.cookies||'', user: req.user||'' });
+// });
 
 app.use("/api/auth", authRouter);
 
-app.use("/api/users", userRouter);
+app.use(authMiddleware);
+
+app.use("/api/users", checkAdmin, userRouter);
 
 app.use(errorHandler);
 
