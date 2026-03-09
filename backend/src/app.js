@@ -6,9 +6,10 @@ const cookieParser = require('cookie-parser');
 const { FRONTEND_URL } = require("./config/env");
 const errorHandler = require("./middlewares/errorHandler");
 const authRouter = require("./features/auth/auth.routes");
-const userRouter = require("./features/user/user.routes");
+const usersRouter = require("./features/users/users.routes");
 const authMiddleware = require("./middlewares/authMiddleware");
 const checkAdmin = require('./middlewares/checkAdmin');
+const requestLogger = require('./middlewares/requestLogger');
 
 const app = express();
 
@@ -23,17 +24,7 @@ app.use(cors({
 app.use(cookieParser());
 
 /* Request Logging Middleware */
-app.use((req, res, next) => {
-  const start = new Date();
-  console.log(`Incoming request @ ${start.toISOString()} ${req.method} ${req.originalUrl}`);
-  
-  res.on('finish', () => {
-    const duration = new Date() - start;
-    console.log(`Finished request @ ${start.toISOString()} ${req.method} ${req.originalUrl} => ${res.statusCode} ${duration}ms`);
-  });
-
-  next();
-});
+app.use(requestLogger);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -43,17 +34,11 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK' });
 });
 
-// app.get('/test', authMiddleware, (req, res) => {
-//   console.log('req.cookies', req.cookies);
-//   console.log('req.user', req.user);
-//   res.json({ message: 'This is a test route', cookies: req.cookies||'', user: req.user||'' });
-// });
-
 app.use("/api/auth", authRouter);
 
 app.use(authMiddleware);
 
-app.use("/api/users", checkAdmin, userRouter);
+app.use("/api/users", checkAdmin, usersRouter);
 
 app.use(errorHandler);
 

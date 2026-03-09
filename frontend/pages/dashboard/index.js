@@ -1,15 +1,30 @@
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { BACKEND_URL as backend_url } from '@/config/env.js';
+import Navbar from '@/comps/navbar';
+import { useRouter } from 'next/router';
+import { AuthContext } from '@/context/auth';
 
 export default function Dashboard() {
+  const router = useRouter();
+  const authUser = useContext(AuthContext);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('create-users');
+
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState({
     fullName: '',
-    email: '',
+    companyEmail: '',
     password: '',
   });
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (authUser === null) {
+      router.push("/login");
+    }
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -17,12 +32,6 @@ export default function Dashboard() {
       ...prev,
       [name]: value
     }));
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
   };
 
   const validateForm = () => {
@@ -32,13 +41,13 @@ export default function Dashboard() {
       newErrors.fullName = 'Full name is required';
     }
     
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
+    if (!formData.companyEmail.trim()) {
+      newErrors.companyEmail = 'Company email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.companyEmail)) {
+      newErrors.companyEmail = 'Please enter a valid company email';
     }
     
-    if (!formData.password) {
+    if (!formData.password.trim()) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters';
@@ -52,12 +61,35 @@ export default function Dashboard() {
     const newErrors = validateForm();
     
     if (Object.keys(newErrors).length === 0) {
-      console.log('[v0] New user created:', formData);
-      setFormData({
-        fullName: '',
-        email: '',
-        password: '',
+      fetch(`${backend_url}/api/users/create`, {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // include cookies in the request
+      })
+      .then(res => res.json()) // parse JSON
+      .then(data => {
+        if (data.success) {
+          setSuccessMessage(data.message);
+          setErrorMessage('');
+          setFormData({
+            fullName: '',
+            companyEmail: '',
+            password: ''
+          });
+        } else {
+          setSuccessMessage('');
+          setErrorMessage(data.message);
+          setErrors(JSON.parse(data.details).formErrors || {});
+        }
+      })
+      .catch(err => {
+        console.error('Create user error:', err);
       });
+
+      setErrors({});
     } else {
       setErrors(newErrors);
     }
@@ -73,7 +105,7 @@ export default function Dashboard() {
     },
     {
       type: 'ai',
-      text: 'To create a new user, navigate to the "Create New Users" tab in the Admin Panel. Fill in the required fields: Full Name, Email, and Password (minimum 8 characters). Once you\'ve entered all information, click the "Create User" button to add them to your organization.',
+      text: 'To create a new user, navigate to the "Create New Users" tab in the Admin Panel. Fill in the required fields: Full Name, companyEmail, and Password (minimum 8 characters). Once you\'ve entered all information, click the "Create User" button to add them to your organization.',
       timestamp: '2:31 PM'
     },
     {
@@ -154,32 +186,10 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      {/* Navbar */}
-      <nav className="border-b border-slate-800/50 backdrop-blur-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden p-2 hover:bg-slate-800 rounded-lg transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-            <Link href="/" className="text-lg font-bold tracking-wider bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              KnowBaseAI
-            </Link>
-          </div>
-          <div className="flex gap-3">
-            <button className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-blue-400 transition-colors duration-200">
-              Profile
-            </button>
-            <button className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-red-400 transition-colors duration-200">
-              Logout
-            </button>
-          </div>
-        </div>
-      </nav>
+      <Navbar params={{
+        pathname: router.pathname,
+        toggleSidebar: () => setSidebarOpen(!sidebarOpen) 
+      }} />
 
       <div className="flex">
         {/* Sidebar Overlay for Mobile */}
@@ -275,10 +285,27 @@ export default function Dashboard() {
         {/* Main Content */}
         <main className="flex-1 overflow-auto">
           {activeTab === 'create-users' && (
-            <div className="max-w-4xl mx-auto p-6 sm:p-8">
+            <div className="max-w-xl mx-auto p-6 sm:p-8">
               <div className="bg-slate-900 rounded-2xl border border-slate-800 p-8">
-                <h1 className="text-3xl font-bold mb-2">Create New User</h1>
-                <p className="text-slate-400 mb-8">Add a new user to your organization</p>
+                
+                {/* Header */}
+                <div className="text-center mb-8">
+                  <h1 className="text-3xl font-bold mb-2">Create New User</h1>
+                  <p className="text-slate-400 mb-8">Add a new user to your organization</p>
+                </div>
+
+                {/* center text for error and success message */}
+                {(
+                  !!errorMessage ?
+                  <div className='text-center mb-0.5 text-red-500 text-sm'>
+                    {errorMessage}
+                  </div>
+                  : !!successMessage ?
+                  <div className='text-center mb-0.5 text-green-500 text-sm'>
+                    {successMessage}
+                  </div>
+                  : null
+                )}
 
                 <form onSubmit={handleSubmit} className="space-y-6 max-w-md">
                   {/* Full Name */}
@@ -302,21 +329,21 @@ export default function Dashboard() {
 
                   {/* Email */}
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
-                      Email
+                    <label htmlFor="companyEmail" className="block text-sm font-medium text-slate-300 mb-2">
+                      Company Email
                     </label>
                     <input
                       type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
+                      id="companyEmail"
+                      name="companyEmail"
+                      value={formData.companyEmail}
                       onChange={handleInputChange}
                       className={`w-full px-4 py-2 rounded-lg bg-slate-800 border transition-colors ${
-                        errors.email ? 'border-red-500' : 'border-slate-700 focus:border-blue-500'
+                        errors.companyEmail ? 'border-red-500' : 'border-slate-700 focus:border-blue-500'
                       } text-white placeholder-slate-500 focus:outline-none`}
                       placeholder="john@example.com"
                     />
-                    {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                    {errors.companyEmail && <p className="text-red-500 text-sm mt-1">{errors.companyEmail}</p>}
                   </div>
 
                   {/* Password */}

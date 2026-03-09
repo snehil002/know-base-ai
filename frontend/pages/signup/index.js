@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { BACKEND_URL as backend_url } from '@/config/env.js';
+import { useRouter } from 'next/router';
+import Navbar from '@/comps/navbar';
 
 export default function Signup() {
+  const router = useRouter();
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState({
@@ -52,6 +55,10 @@ export default function Signup() {
     return newErrors;
   };
 
+  const saveLoggedInUserToLocalStorage = (userString) => {
+    localStorage.setItem("loggedInUser", userString);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const newErrors = validateForm();
@@ -78,6 +85,10 @@ export default function Signup() {
             password: '',
             confirmPassword: '',
           });
+          saveLoggedInUserToLocalStorage(data.details); // JSON string
+          setTimeout(() => {
+            router.push('/dashboard');
+          }, 1000);
         } else {
           setSuccessMessage('');
           setErrorMessage(data.message);
@@ -96,19 +107,7 @@ export default function Signup() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white overflow-hidden">
-      {/* Navbar */}
-      <nav className="border-b border-slate-800/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <Link href="/" className="text-lg font-bold tracking-wider bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity">
-            KnowBaseAI
-          </Link>
-          <div className="flex gap-3">
-            <Link href="/" className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-blue-400 transition-colors duration-200">
-              Back
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Signup Form Section */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-24">
@@ -241,7 +240,7 @@ export default function Signup() {
               {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full px-4 py-3 mt-6 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-500/40 transition-all duration-300 active:scale-95"
+                className="cursor-pointer w-full px-4 py-3 mt-6 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-500/40 transition-all duration-300 active:scale-95"
               >
                 Create Account
               </button>

@@ -1,4 +1,4 @@
-const { createUserService } = require("./user.service");
+const { createUserService } = require("./users.service");
 const { sendSuccessResponse } = require("../../utils/response");
 
 exports.createUserController = async (req, res, next) => {

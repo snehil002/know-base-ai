@@ -1,23 +1,11 @@
+import Navbar from '@/comps/navbar';
 import Link from 'next/link';
 
 export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white overflow-hidden">
-      {/* Navbar */}
-      <nav className="border-b border-slate-800/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="text-lg font-bold tracking-wider bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">KnowBaseAI</div>
-          <div className="flex gap-3">
-            <Link href="/login" className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-blue-400 transition-colors duration-200">
-              Log In
-            </Link>
-            <Link href="/signup" className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-all duration-200 shadow-lg hover:shadow-blue-500/30 inline-block">
-              Sign Up
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar/>
 
       {/* Hero Section */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
@@ -65,6 +53,7 @@ export default function Home() {
           </div>
         </div>
       </main>
+
     </div>
   )
 }
