@@ -5,11 +5,14 @@ const cookieParser = require('cookie-parser');
 
 const { FRONTEND_URL } = require("./config/env");
 const errorHandler = require("./middlewares/errorHandler");
-const authRouter = require("./features/auth/auth.routes");
-const usersRouter = require("./features/users/users.routes");
+const requestLogger = require('./middlewares/requestLogger');
+
 const authMiddleware = require("./middlewares/authMiddleware");
 const checkAdmin = require('./middlewares/checkAdmin');
-const requestLogger = require('./middlewares/requestLogger');
+
+const authRouter = require("./features/auth/auth.routes");
+const usersRouter = require("./features/users/users.routes");
+const docsRouter = require("./features/docs/docs.routes");
 
 const app = express();
 
@@ -39,6 +42,8 @@ app.use("/api/auth", authRouter);
 app.use(authMiddleware);
 
 app.use("/api/users", checkAdmin, usersRouter);
+
+app.use("/api/docs", docsRouter);
 
 app.use(errorHandler);
 

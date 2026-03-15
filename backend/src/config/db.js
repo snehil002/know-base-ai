@@ -4,7 +4,7 @@
  */
 
 const mongoose = require('mongoose');
-const { MONGODB_URI } = require('./env');
+const { MONGODB_URI: uri } = require('./env');
 
 /**
  * Connect to MongoDB using mongoose.
@@ -12,7 +12,6 @@ const { MONGODB_URI } = require('./env');
  * @returns {Promise<mongoose.Connection>}
  */
 async function connectDB() {
-	const uri = MONGODB_URI;
 	if (!uri) {
 		const err = new Error('MONGODB_URI environment variable is not set');
 		console.error(err.message);
