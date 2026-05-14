@@ -1,19 +1,16 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
+require('dotenv').config({ path: path.join(__dirname, '../secrets/.env'), quiet: true });
 const { PORT } = require('./config/env');
 const app = require('./app');
-const { connectDB, setupGracefulShutdown } = require('./config/db');
+const connectDB = require('./config/db');
 
 (async () => {
   try {
     await connectDB();
-    setupGracefulShutdown();
+    app.listen(PORT, () => {
+      console.log(`Server is running on port: ${PORT}`);
+    });
   } catch (err) {
-    console.error('Unable to start server due to DB connection error', err);
-    process.exit(1);
+    console.error('Unable to start server:', err);
   }
-
-  app.listen(PORT, () => {
-    console.log(`Server is running on port: ${PORT}`);
-  });
 })();
