@@ -1,33 +1,33 @@
-const { registerUserService, loginUserService } = require("./auth.service");
+const authService = require("./auth.service");
 const { 
-  sendSuccessResponse, setAuthCookieResponseHeader,
+  sendSuccessResponse, 
+  setAuthCookieResponseHeader,
   setLogoutCookieResponseHeader,
 } = require("../../utils/response");
 
-exports.registerController = async (req, res, next) => {
+exports.signup = async (req, res, next) => {
   try {
-    const data = await registerUserService(req.body);
-    setAuthCookieResponseHeader(res, "auth-token", data.token);
-    return sendSuccessResponse(res, "User registered successfully", data.user);
+    await authService.signup(req.body);
+    sendSuccessResponse(res, "Signup successful");
   } catch (err) {
     next(err);
   }
 };
 
-exports.loginController = async (req, res, next) => {
+exports.login = async (req, res, next) => {
   try {
-    const data = await loginUserService(req.body);
+    const data = await authService.login(req.body);
     setAuthCookieResponseHeader(res, "auth-token", data.token);
-    return sendSuccessResponse(res, "Login successful", data.user);
+    sendSuccessResponse(res, "Login successful", data.user);
   } catch (err) {
     next(err);
   }
 };
 
-exports.logoutController = async (req, res, next) => {
+exports.logout = async (req, res, next) => {
   try {
     setLogoutCookieResponseHeader(res, "auth-token", "");
-    return sendSuccessResponse(res, "You have been logged out");
+    sendSuccessResponse(res, "Logout successful");
   } catch (err) {
     next(err);
   }

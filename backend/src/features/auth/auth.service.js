@@ -4,13 +4,13 @@ const jwt = require("jsonwebtoken");
 const User = require("./auth.model");
 const { JWT_SECRET } = require("../../config/env");
 
-const generateToken = (companyEmail) => {
-  return jwt.sign({ companyEmail }, JWT_SECRET, {
+const generateToken = (userId) => {
+  return jwt.sign({ userId }, JWT_SECRET, {
     expiresIn: "7d",
   });
 };
 
-exports.registerUserService = async ({ fullName, companyName, companyEmail, password }) => {
+exports.signup = async ({ fullName, companyName, companyEmail, password }) => {
   // DB Read query
   // returns the user document (without password: see model file) if found, otherwise null
   const existing = await User.findOne({ companyEmail });
@@ -31,20 +31,12 @@ exports.registerUserService = async ({ fullName, companyName, companyEmail, pass
     password: hashedPassword,
   });
 
-  const token = generateToken(user.companyEmail); // JWT token string
-
   return { 
-    user: {
-      fullName: user.fullName,
-      companyName: user.companyName,
-      companyEmail: user.companyEmail,
-      role: user.role
-    }, 
-    token
+    userId: user._id,
   };
 };
 
-exports.loginUserService = async ({ companyEmail, password }) => {
+exports.login = async ({ companyEmail, password }) => {
   // DB Read query
   // returns the user document (with password) if found, otherwise null
   const user = await User.findOne({ companyEmail }).select("+password");
@@ -63,15 +55,16 @@ exports.loginUserService = async ({ companyEmail, password }) => {
     throw err;
   }
 
-  const token = generateToken(user.companyEmail); // JWT token string
+  const token = generateToken(user._id); // JWT token string
 
   return { 
+    userId: user._id,
     user: {
       fullName: user.fullName,
       companyName: user.companyName,
       companyEmail: user.companyEmail,
       role: user.role
-    }, 
-    token
+    },
+    token,
   };
 };
