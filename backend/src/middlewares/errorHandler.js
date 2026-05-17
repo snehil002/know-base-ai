@@ -1,4 +1,4 @@
-const { sendErrorResponse } = require("../utils/response");
+const { sendErrorResponse, setLogoutCookieResponseHeader } = require("../utils/response");
 const { logError } = require("../utils/logger");
 
 // Centralized error handling middleware
@@ -12,6 +12,9 @@ module.exports = (err, req, res, next) => {
   });
 
   if (typeof err.statusCode === "number") { // for frontend
+    if (err.details && err.details.deAuthenticateUser === true) {
+      setLogoutCookieResponseHeader(res, "auth-token", "");
+    }
     return sendErrorResponse(res, err.message, err.details, err.statusCode);
   } else {
     return sendErrorResponse(res, "An unexpected error occurred.", {}, 500);
