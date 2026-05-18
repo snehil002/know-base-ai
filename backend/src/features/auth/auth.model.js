@@ -1,41 +1,19 @@
-const { mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 
-const fileSchema = new mongoose.Schema(
+const companySchema = new mongoose.Schema(
   {
-    fileName: String,
-    fileSize: Number,
-    tokensUsed: Number,
-    timestamp: Number,
-  }
-);
-
-const tokenSchema = new mongoose.Schema(
-  {
-    tokens: Number,
-    timestamp: Number,
-  }, 
-  {
-    _id: false
-  }
-);
-
-const tokenUsageSchema = new mongoose.Schema(
-  {
-    embeddings: {
-      data: [tokenSchema],
-      total: {
-        type: Number,
-        default: 0
-      }
+    companyName: {
+      type: String,
+      required: true,
+      trim: true,
+      lowercase: true,
+      unique: true,  // MongoDB index + unique constraint
     },
-    chatCompletions: {
-      data: [tokenSchema],
-      total: {
-        type: Number,
-        default: 0
-      }
+    aiTokenUsageAmount: {
+      type: Number,
+      default: 0
     },
-    total: {
+    gcsStorageSizeUsed: {
       type: Number,
       default: 0
     }
@@ -50,9 +28,9 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
     companyName: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Company',
       required: true,
-      trim: true,
     },
     companyEmail: {
       type: String,
@@ -69,16 +47,16 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["user", "admin"],
-      default: "user",
+      enum: ["guest", "user", "admin"],
+      default: "guest",
     },
-    uploadedFiles: {
-      type: [fileSchema],
-      select: false, // hide by default on read queries
+    aiTokenUsageAmount: {
+      type: Number,
+      default: 0
     },
-    tokensUsed: {
-      type: tokenUsageSchema,
-      select: false, // hide by default on read queries
+    gcsStorageSizeUsed: {
+      type: Number,
+      default: 0
     }
   },
   { 
@@ -86,4 +64,5 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("User", userSchema);
+module.exports.Company = mongoose.model("Company", companySchema);
+module.exports.User = mongoose.model("User", userSchema);
