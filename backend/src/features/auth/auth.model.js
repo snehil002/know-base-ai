@@ -1,55 +1,8 @@
-const { mongoose } = require("mongoose");
-
-const fileSchema = new mongoose.Schema(
-  {
-    fileName: String,
-    fileSize: Number,
-    tokensUsed: Number,
-    timestamp: Number,
-  }
-);
-
-const tokenSchema = new mongoose.Schema(
-  {
-    tokens: Number,
-    timestamp: Number,
-  }, 
-  {
-    _id: false
-  }
-);
-
-const tokenUsageSchema = new mongoose.Schema(
-  {
-    embeddings: {
-      data: [tokenSchema],
-      total: {
-        type: Number,
-        default: 0
-      }
-    },
-    chatCompletions: {
-      data: [tokenSchema],
-      total: {
-        type: Number,
-        default: 0
-      }
-    },
-    total: {
-      type: Number,
-      default: 0
-    }
-  }
-);
+const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
     fullName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    companyName: {
       type: String,
       required: true,
       trim: true,
@@ -67,18 +20,13 @@ const userSchema = new mongoose.Schema(
       trim: true,
       select: false, // hide by default on read queries
     },
-    role: {
-      type: String,
-      enum: ["user", "admin"],
-      default: "user",
+    aiTokenUsageAmount: {
+      type: Number,
+      default: 0
     },
-    uploadedFiles: {
-      type: [fileSchema],
-      select: false, // hide by default on read queries
-    },
-    tokensUsed: {
-      type: tokenUsageSchema,
-      select: false, // hide by default on read queries
+    gcsStorageSizeUsed: {
+      type: Number,
+      default: 0
     }
   },
   { 
@@ -86,4 +34,61 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("User", userSchema);
+const roleSchema = new mongoose.Schema(
+  {
+    _id: {
+      type: String,
+      required: true,
+      enum: ["invited", "member", "admin", "owner"],
+    }
+  }
+);
+
+const workspaceSchema = new mongoose.Schema(
+  {
+    workspaceName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    aiTokenUsageAmount: {
+      type: Number,
+      default: 0
+    },
+    gcsStorageSizeUsed: {
+      type: Number,
+      default: 0
+    }
+  },
+  { 
+    timestamps: true
+  }
+);
+
+const workspaceMemberSchema = new mongoose.Schema(
+  {
+    workspaceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Workspace',
+      required: true,
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    role: {
+      type: String,
+      ref: 'Role',
+      default: "invited",
+    },
+  },
+  { 
+    timestamps: true
+  }
+);
+
+module.exports.User = mongoose.model("User", userSchema);
+module.exports.Role = mongoose.model("Role", roleSchema);
+module.exports.Workspace = mongoose.model("Workspace", workspaceSchema);
+module.exports.WorkspaceMember = mongoose.model("WorkspaceMember", workspaceMemberSchema);

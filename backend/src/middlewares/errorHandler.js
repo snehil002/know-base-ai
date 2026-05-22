@@ -3,6 +3,7 @@ const { logError } = require("../utils/logger");
 
 // Centralized error handling middleware
 // Should definitely send an error response
+// eslint-disable-next-line no-unused-vars
 module.exports = (err, req, res, next) => {
   logError(err.message, {
     stack: err.stack,
