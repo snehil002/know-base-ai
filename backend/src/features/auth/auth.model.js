@@ -2,11 +2,6 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
-    fullName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     companyEmail: {
       type: String,
       required: true,
@@ -14,10 +9,19 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       unique: true,  // MongoDB index + unique constraint
     },
-    password: {
+    otp: {
       type: String,
-      required: true,
-      trim: true,
+      default: "",
+      select: false, // hide by default on read queries
+    },
+    otpExpiry: {
+      type: Date,
+      default: 0,
+      select: false, // hide by default on read queries
+    },
+    verified: {
+      type: Boolean,
+      default: false,
       select: false, // hide by default on read queries
     },
     aiTokenUsageAmount: {
