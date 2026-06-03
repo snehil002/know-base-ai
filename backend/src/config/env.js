@@ -1,4 +1,5 @@
 module.exports = {
+  APP_URL: process.env.APP_URL || "http://localhost:5000",
   PORT: process.env.PORT || 5000,
   MONGODB_URI: process.env.MONGODB_URI,
   JWT_SECRET: process.env.JWT_SECRET,
@@ -8,4 +9,8 @@ module.exports = {
   PINECONE_INDEX_NAME: process.env.PINECONE_INDEX_NAME,
   PINECONE_INDEX_HOST: process.env.PINECONE_INDEX_HOST,
   GCS_BUCKET_NAME: process.env.GCS_BUCKET_NAME,
+  MAILGUN_API_KEY: process.env.MAILGUN_API_KEY,
+  MAILGUN_DOMAIN: process.env.MAILGUN_DOMAIN,
+  MAILGUN_FROM_EMAIL_VERIFY: process.env.MAILGUN_FROM_EMAIL_VERIFY,
+  MAILGUN_FROM_EMAIL_INVITE: process.env.MAILGUN_FROM_EMAIL_INVITE,
 };
