@@ -3,10 +3,12 @@ require('dotenv').config({ path: path.join(__dirname, '../secrets/.env'), quiet:
 const { PORT } = require('./config/env');
 const app = require('./app');
 const connectDB = require('./config/db');
+const seedRoles = require('./seedScripts/roles');
 
 (async () => {
   try {
     await connectDB();
+    await seedRoles();
     app.listen(PORT, () => {
       console.log(`Server is running on port: ${PORT}`);
     });

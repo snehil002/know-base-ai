@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema(
   {
     fullName: {
       type: String,
-      required: true,
+      default: "",
       trim: true,
     },
     companyEmail: {
@@ -14,17 +14,16 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       unique: true,  // MongoDB index + unique constraint
     },
-    password: {
-      type: String,
-      required: true,
-      trim: true,
+    isVerified: {
+      type: Boolean,
+      default: false,
       select: false, // hide by default on read queries
     },
     aiTokenUsageAmount: {
       type: Number,
       default: 0
     },
-    gcsStorageSizeUsed: {
+    cloudStorageUsage: {
       type: Number,
       default: 0
     }
@@ -44,6 +43,26 @@ const roleSchema = new mongoose.Schema(
   }
 );
 
+const magicTokenSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true
+    },
+    hashedToken: {
+      type: String,
+      required: true,
+      unique: true
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+      expires: 900 // <--- TTL Index: Automatically deletes document after 15 minutes (900 seconds)
+    }
+  }
+);
+
 const workspaceSchema = new mongoose.Schema(
   {
     workspaceName: {
@@ -55,7 +74,7 @@ const workspaceSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
-    gcsStorageSizeUsed: {
+    cloudStorageUsage: {
       type: Number,
       default: 0
     }
@@ -69,17 +88,17 @@ const workspaceMemberSchema = new mongoose.Schema(
   {
     workspaceId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Workspace',
+      ref: "Workspace",
       required: true,
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     role: {
       type: String,
-      ref: 'Role',
+      ref: "Role",
       default: "invited",
     },
   },
@@ -88,7 +107,8 @@ const workspaceMemberSchema = new mongoose.Schema(
   }
 );
 
-module.exports.User = mongoose.model("User", userSchema);
-module.exports.Role = mongoose.model("Role", roleSchema);
-module.exports.Workspace = mongoose.model("Workspace", workspaceSchema);
-module.exports.WorkspaceMember = mongoose.model("WorkspaceMember", workspaceMemberSchema);
+exports.User = mongoose.model("User", userSchema);
+exports.Role = mongoose.model("Role", roleSchema);
+exports.MagicToken = mongoose.model("MagicToken", magicTokenSchema);
+exports.Workspace = mongoose.model("Workspace", workspaceSchema);
+exports.WorkspaceMember = mongoose.model("WorkspaceMember", workspaceMemberSchema);
