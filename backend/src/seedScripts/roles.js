@@ -1,6 +1,6 @@
 const authModel = require('../features/auth/auth.model');
 
-exports.seedRoles = async () => {
+const seedRoles = async () => {
   try {
     const rolesToSeed = [
       { _id: 'invited' },
@@ -23,3 +23,5 @@ exports.seedRoles = async () => {
     throw err;
   }
 };
+
+module.exports = seedRoles;

@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 const { FRONTEND_URL } = require("./config/env");
 const errorHandler = require("./middlewares/errorHandler");
 const requestLogger = require('./middlewares/requestLogger');
-const authMiddleware = require("./middlewares/authMiddleware");
+// const authMiddleware = require("./middlewares/authMiddleware");
 
 const authRouter = require("./features/auth/auth.routes");
 // const usersRouter = require("./features/users/users.routes");
@@ -36,7 +36,7 @@ app.get('/health', (req, res) => {
 
 app.use("/api/auth", authRouter);
 
-app.use(authMiddleware);
+// app.use(authMiddleware);
 
 // app.use("/api/users", usersRouter);
 
