@@ -1,5 +1,4 @@
 const crypto = require('crypto');
-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const authModel = require("./auth.model");
@@ -12,70 +11,11 @@ const generateJWTToken = (userId) => {
   });
 };
 
-exports.signup = async ({ fullName, companyName, companyEmail, password }) => {
-  // DB Read query
-  // returns the user document (without password: see model file) if found, otherwise null
-  const existing = await authModel.User.findOne({ companyEmail });
-  if (existing) {
-    const err = new Error("User already exists");
-    err.statusCode = 400;
-    throw err;
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  // DB Create query
-  // returns the saved user document with the hashed password
-  const user = await authModel.User.create({
-    fullName,
-    companyName,
-    companyEmail,
-    password: hashedPassword,
-  });
-
-  return { 
-    userId: user._id,
-  };
-};
-
-exports.login = async ({ companyEmail, password }) => {
-  // DB Read query
-  // returns the user document (with password) if found, otherwise null
-  const user = await authModel.User.findOne({ companyEmail }).select("+password");
-
-  if (!user) {
-    const err = new Error("Invalid credentials");
-    err.statusCode = 401;
-    throw err;
-  }
-
-  const isMatch = await bcrypt.compare(password, user.password);
-
-  if (!isMatch) {
-    const err = new Error("Invalid credentials");
-    err.statusCode = 401;
-    throw err;
-  }
-
-  const token = generateJWTToken(user._id); // JWT token string
-
-  return { 
-    userId: user._id,
-    user: {
-      fullName: user.fullName,
-      companyName: user.companyName,
-      companyEmail: user.companyEmail,
-      role: user.role
-    },
-    token,
-  };
-};
-
-exports.sendMagicLink = async ({ recipientEmail }) => {
+exports.sendMagicLink = async ({ companyEmail }) => {
   try {
-    let user = await authModel.User.findOne({ companyEmail: recipientEmail });
+    let user = await authModel.User.findOne({ companyEmail });
     if (!user) {
-      user = await authModel.User.create({ companyEmail: recipientEmail });
+      user = await authModel.User.create({ companyEmail });
     }
 
     // Clear out any old tokens for this user
@@ -100,12 +40,12 @@ exports.sendMagicLink = async ({ recipientEmail }) => {
     const magicLinkUrl = `${APP_URL}/api/auth/verify?magicToken=${rawToken}`;
 
     await emailService.sendVerifyEmail({
-      recipientEmail,
+      recipientEmail: companyEmail,
       magicLinkUrl,
       expirationMinutes: 15,
     });
 
-    return { recipientEmail, magicLinkUrl };
+    return { companyEmail, magicLinkUrl };
 
   } catch (err) {
     if (!err.forFrontend) {
@@ -127,7 +67,8 @@ exports.verifyMagicLink = async ({ magicToken: rawTokenFromUrl }) => {
       .digest('hex');
 
     // 2. Look up the document using the hashed token
-    const savedToken = await authModel.MagicToken.findOne({ hashedToken: hashedTokenFromUrl }).populate('userId');
+    const savedToken = await authModel.MagicToken.findOne({ hashedToken: hashedTokenFromUrl })
+      .populate('userId', '+isVerified');
 
     if (!savedToken) {
       const err = new Error("Invalid or expired magic link.");
