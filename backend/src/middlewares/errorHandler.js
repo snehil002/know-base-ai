@@ -5,19 +5,20 @@ const { logError } = require("../utils/logger");
 // Should definitely send an error response
 // eslint-disable-next-line no-unused-vars
 module.exports = (err, req, res, next) => {
-  logError(err.message, {
-    stack: err.stack,
-    details: err.details,
-    statusCode: err.statusCode,
-    path: req.originalUrl,
-  });
-
-  if (typeof err.statusCode === "number") { // for frontend
-    if (err.details && err.details.deAuthenticateUser === true) {
+  if (err.forFrontend) {
+    const { message, details, statusCode } = err.forFrontend;
+    if (details && details.deAuthenticateUser === true) {
       setLogoutCookieResponseHeader(res, "auth-token", "");
     }
-    return sendErrorResponse(res, err.message, err.details, err.statusCode);
+    sendErrorResponse(res, message, details, statusCode);
   } else {
-    return sendErrorResponse(res, "An unexpected error occurred.", {}, 500);
+    sendErrorResponse(res, "An unexpected error occurred.", {}, 500);
   }
+
+  logError(err.toString(), {
+    stack: err.stack,
+    forBackend: err.forBackend,
+    forFrontend: err.forFrontend,
+    path: req.originalUrl,
+  });
 };
