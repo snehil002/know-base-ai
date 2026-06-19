@@ -16,3 +16,20 @@ exports.getUploadSignedUrl = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.updateFileUploadStatus = async (req, res, next) => {
+  try {
+    let workspaceId;
+    const { fileId } = req.body;
+
+    await filesService.updateFileUploadStatus(workspaceId, fileId);
+
+    // push a file indexing task to queue
+    
+    
+    response.sendSuccessResponse(res, "Your file has been successfully uploaded and queued to be indexed");
+
+  } catch (err) {
+    next(err);
+  }
+};

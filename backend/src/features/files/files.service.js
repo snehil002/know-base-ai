@@ -31,7 +31,7 @@ exports.createFile = async ({
 
   } catch (err) {
     err.forFrontend = {
-      message: "Something went wrong. Please try again",
+      message: "Something went wrong generating file ids",
       statusCode: 500,
     };
     throw err;
@@ -52,7 +52,29 @@ exports.getUploadSignedUrl = async (gcsFileName) => {
 
   } catch (err) {
     err.forFrontend = {
-      message: "Something went wrong generating upload URL",
+      message: "Something went wrong generating file upload URL",
+      statusCode: 500,
+    };
+    throw err;
+  }
+};
+
+exports.updateFileUploadStatus = async (workspaceId, fileId) => {
+  try {
+    await filesModel.File.updateOne(
+      {
+        _id: fileId,
+        workspaceId
+      },
+      {
+        $set: {
+          uploadingStatus: "completed"
+        }
+      }
+    );
+  } catch (err) {
+    err.forFrontend = {
+      message: "Something went wrong updating the status of the file upload",
       statusCode: 500,
     };
     throw err;
