@@ -6,7 +6,7 @@ exports.getUploadSignedUrl = async (req, res, next) => {
     let uploaderId, workspaceId;
     const { fileName, fileSizeInBytes, title, description } = req.body;
 
-    const { fileId, gcsFileName } = await filesService.createFile({ fileName, fileSizeInBytes, title, description, uploaderId, workspaceId });
+    const { fileId, gcsFileName } = await filesService.saveFileMetadata({ fileName, fileSizeInBytes, title, description, uploaderId, workspaceId });
 
     const uploadSignedUrl = await filesService.getUploadSignedUrl(gcsFileName);
 
@@ -24,8 +24,7 @@ exports.updateFileUploadStatus = async (req, res, next) => {
 
     await filesService.updateFileUploadStatus(workspaceId, fileId);
 
-    // push a file indexing task to queue
-    
+    await filesService.pushFileIndexingTaskToQueue({ fileId, });
     
     response.sendSuccessResponse(res, "Your file has been successfully uploaded and queued to be indexed");
 

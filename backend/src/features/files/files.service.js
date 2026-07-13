@@ -1,7 +1,10 @@
+const IORedis = require("ioredis");
+const { Queue } = require("bullmq");
+const REDIS_URL = require("../../config/env");
 const bucket = require("../../config/gcsBucket");
 const filesModel = require("./files.model");
 
-exports.createFile = async ({
+exports.saveFileMetadata = async ({
   fileName,
   fileSizeInBytes,
   title,
@@ -33,6 +36,7 @@ exports.createFile = async ({
     err.forFrontend = {
       message: "Something went wrong generating file ids",
       statusCode: 500,
+      errorCode: "FUMET",
     };
     throw err;
   }
@@ -54,6 +58,7 @@ exports.getUploadSignedUrl = async (gcsFileName) => {
     err.forFrontend = {
       message: "Something went wrong generating file upload URL",
       statusCode: 500,
+      errorCode: "FUURL",
     };
     throw err;
   }
@@ -76,6 +81,24 @@ exports.updateFileUploadStatus = async (workspaceId, fileId) => {
     err.forFrontend = {
       message: "Something went wrong updating the status of the file upload",
       statusCode: 500,
+      errorCode: "FUSTA",
+    };
+    throw err;
+  }
+};
+
+exports.pushFileIndexingTaskToQueue = async ({ fileId }) => {
+  try {
+    const connection = new IORedis(REDIS_URL);
+    const fileIndexingQueue = new Queue("fileIndexingQueue", { connection });
+
+    await fileIndexingQueue.add("fileIndexingJob", { fileId, });
+
+  } catch (err) {
+    err.forFrontend = {
+      message: "Something went wrong adding file indexing task to queue",
+      statusCode: 500,
+      errorCode: "FUQUE",
     };
     throw err;
   }
