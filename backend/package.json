@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Application's main backend server",
   "license": "ISC",
   "author": "Snehil Kumar",
   "type": "commonjs",
